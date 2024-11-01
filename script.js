@@ -22,6 +22,7 @@ function submitChoice(choice) {
     .catch((error) => alert("Error submitting choice: " + error));
 }
 // Function to fetch data and create a .txt file
+// Function to fetch all data and create a downloadable .txt file
 function exportDataAsTextFile() {
     db.collection("selections")
       .orderBy("timestamp", "desc")
@@ -45,10 +46,11 @@ function exportDataAsTextFile() {
           link.download = "selections.txt";
           link.click();
 
-          // Clean up URL
+          // Clean up the URL
           URL.revokeObjectURL(url);
       })
       .catch((error) => {
           console.error("Error fetching data:", error);
       });
 }
+
