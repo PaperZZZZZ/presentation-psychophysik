@@ -18,9 +18,12 @@ function submitChoice(choice) {
         choice: choice,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     })
-    .then(() => alert("Choice submitted!"))
-    .catch((error) => alert("Error submitting choice: " + error));
-}
+    .then(() => {
+        console.log("User choice submitted successfully!");
+    })
+    .catch((error) => {
+        console.error("Error submitting choice: ", error);
+    });
 // Function to fetch data and create a .txt file
 // Function to fetch all data and create a downloadable .txt file
 function exportDataAsTextFile() {
