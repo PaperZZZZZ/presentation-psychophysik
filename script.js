@@ -21,3 +21,34 @@ function submitChoice(choice) {
     .then(() => alert("Choice submitted!"))
     .catch((error) => alert("Error submitting choice: " + error));
 }
+// Function to fetch data and create a .txt file
+function exportDataAsTextFile() {
+    db.collection("selections")
+      .orderBy("timestamp", "desc")
+      .get()
+      .then((snapshot) => {
+          let data = "User Choice, Timestamp\n"; // Header for .txt file
+
+          snapshot.forEach((doc) => {
+              const choice = doc.data().choice;
+              const timestamp = doc.data().timestamp.toDate().toISOString();
+              data += `${choice}, ${timestamp}\n`;
+          });
+
+          // Create a Blob from the data
+          const blob = new Blob([data], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+
+          // Create a link to download the file
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "selections.txt";
+          link.click();
+
+          // Clean up URL
+          URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+          console.error("Error fetching data:", error);
+      });
+}
