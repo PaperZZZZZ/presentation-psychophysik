@@ -1,18 +1,44 @@
-// api/submit.js
-export default async function handler(req, res) {
+import fs from 'fs';
+import path from 'path';
+
+export default function handler(req, res) {
     if (req.method === 'POST') {
-        // Get the data from the request body
         const { selections, name } = req.body;
+        
+        // Prepare data to write
+        const data = {
+            name,
+            selections,
+        };
 
-        // Here you can save the data to a database, send it to your email, etc.
-        // For demonstration, let's log it to the console (or implement your storage logic)
+        // Specify the file path to save the data
+        const filePath = path.join(process.cwd(), 'data', 'submissions.json');
 
-        console.log('Received data:', { selections, name });
+        // Check if the data directory exists, if not, create it
+        if (!fs.existsSync(path.dirname(filePath))) {
+            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        }
 
-        // Respond with success
-        res.status(200).json({ message: 'Data received successfully' });
+        // Append new submission to the file
+        fs.readFile(filePath, 'utf8', (err, fileData) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Error reading file' });
+            }
+
+            const existingData = fileData ? JSON.parse(fileData) : [];
+            existingData.push(data);
+
+            fs.writeFile(filePath, JSON.stringify(existingData, null, 2), (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ error: 'Error writing file' });
+                }
+
+                res.status(200).json({ message: 'Data received' });
+            });
+        });
     } else {
-        // Handle any other HTTP method
         res.setHeader('Allow', ['POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
