@@ -23,6 +23,9 @@
             border-radius: 8px; /* Rounded corners for images */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
         }
+        .button-container {
+            margin-top: 20px; /* Space above button container */
+        }
         button {
             padding: 15px 30px; /* Increase padding for larger buttons */
             font-size: 18px; /* Increase font size */
@@ -56,7 +59,7 @@
     <div id="imageSelection" class="hidden">
         <h1>Select Images</h1>
         <div id="imageContainer"></div>
-        <button id="submit" class="hidden">Submit</button>
+        <div class="button-container" id="buttonContainer"></div>
     </div>
 
     <div id="finishedMessage" class="hidden">
@@ -69,7 +72,7 @@
         const nameInput = document.getElementById('nameInput');
         const imageSelection = document.getElementById('imageSelection');
         const imageContainer = document.getElementById('imageContainer');
-        const submitButton = document.getElementById('submit');
+        const buttonContainer = document.getElementById('buttonContainer');
         const finishedMessage = document.getElementById('finishedMessage');
         
         const images = [
@@ -78,7 +81,6 @@
             'LightAndSquare0114.png',
             'LightAndSquare0121.png',
         ];
-
 
         let currentImageIndex = 0;
         const selections = [];
@@ -103,11 +105,14 @@
                 imageContainer.appendChild(img);
                 createButtons();
             } else {
-                submitButton.classList.remove('hidden');
+                // Automatically submit after the last image
+                submitSelections();
             }
         }
 
         function createButtons() {
+            buttonContainer.innerHTML = ''; // Clear previous buttons
+
             const yesButton = document.createElement('button');
             yesButton.textContent = 'Yes';
             yesButton.onclick = () => handleSelection(true);
@@ -116,8 +121,8 @@
             noButton.textContent = 'No';
             noButton.onclick = () => handleSelection(false);
 
-            imageContainer.appendChild(yesButton);
-            imageContainer.appendChild(noButton);
+            buttonContainer.appendChild(yesButton);
+            buttonContainer.appendChild(noButton);
         }
 
         function handleSelection(selection) {
@@ -126,12 +131,25 @@
             displayImage();
         }
 
-        submitButton.addEventListener('click', () => {
-            // Here you can handle the submission logic
+        function submitSelections() {
+            // Handle the submission logic
             console.log('Selections:', selections);
             imageSelection.classList.add('hidden');
             finishedMessage.classList.remove('hidden');
+        }
+
+        // Start the first image display
+        goButton.addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            if (name) {
+                nameInput.classList.add('hidden');
+                imageSelection.classList.remove('hidden');
+                displayImage();
+            } else {
+                alert('Please enter your name.');
+            }
         });
+
     </script>
 
 </body>
