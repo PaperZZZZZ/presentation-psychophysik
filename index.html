@@ -68,87 +68,33 @@
     </div>
 
     <script>
-        const goButton = document.getElementById('goButton');
-        const nameInput = document.getElementById('nameInput');
-        const imageSelection = document.getElementById('imageSelection');
-        const imageContainer = document.getElementById('imageContainer');
-        const buttonContainer = document.getElementById('buttonContainer');
-        const finishedMessage = document.getElementById('finishedMessage');
-        
-        const images = [
-            'LightAndSquare0105.png', 
-            'LightAndSquare0109.png',
-            'LightAndSquare0114.png',
-            'LightAndSquare0121.png',
-        ];
-
+        const images = ['image1.png', 'image2.png', 'image3.png'];
         let currentImageIndex = 0;
         const selections = [];
 
-        goButton.addEventListener('click', () => {
-            const name = document.getElementById('name').value;
-            if (name) {
-                nameInput.classList.add('hidden');
-                imageSelection.classList.remove('hidden');
-                displayImage();
-            } else {
-                alert('Please enter your name.');
+        // Start showing images after name is entered
+        document.getElementById('name').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                document.getElementById('imageSelection').style.display = 'block';
+                document.getElementById('name').style.display = 'none';
+                loadNextImage();
             }
         });
 
-        function displayImage() {
+        function loadNextImage() {
             if (currentImageIndex < images.length) {
-                const img = document.createElement('img');
-                img.src = images[currentImageIndex];
-                img.alt = `Image ${currentImageIndex + 1}`;
-                imageContainer.innerHTML = '';
-                imageContainer.appendChild(img);
-                createButtons();
+                document.getElementById('image').src = images[currentImageIndex];
             } else {
-                // Automatically submit after the last image
-                submitSelections();
+                submitSelections(); // automatically submit after the last image
             }
         }
 
-        function createButtons() {
-            buttonContainer.innerHTML = ''; // Clear previous buttons
-
-            const yesButton = document.createElement('button');
-            yesButton.textContent = 'Yes';
-            yesButton.onclick = () => handleSelection(true);
-
-            const noButton = document.createElement('button');
-            noButton.textContent = 'No';
-            noButton.onclick = () => handleSelection(false);
-
-            buttonContainer.appendChild(yesButton);
-            buttonContainer.appendChild(noButton);
-        }
-
-        function handleSelection(selection) {
-            selections.push({ image: images[currentImageIndex], selected: selection });
+        function submitResponse(selected) {
+            selections.push({ image: images[currentImageIndex], selected });
             currentImageIndex++;
-            displayImage();
+            loadNextImage();
         }
 
-        function submitSelections() {
-            // Handle the submission logic
-            console.log('Selections:', selections);
-            imageSelection.classList.add('hidden');
-            finishedMessage.classList.remove('hidden');
-        }
-
-        // Start the first image display
-        goButton.addEventListener('click', () => {
-            const name = document.getElementById('name').value;
-            if (name) {
-                nameInput.classList.add('hidden');
-                imageSelection.classList.remove('hidden');
-                displayImage();
-            } else {
-                alert('Please enter your name.');
-            }
-        });
         async function submitSelections() {
             const name = document.getElementById('name').value;
 
@@ -171,10 +117,6 @@
                 console.error('Error submitting data:', error);
             }
         }
-        
-
-
     </script>
-
 </body>
 </html>
