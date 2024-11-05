@@ -97,7 +97,7 @@
 
         async function submitSelections() {
             const name = document.getElementById('name').value;
-
+        
             try {
                 const response = await fetch('/api/submit', {
                     method: 'POST',
@@ -106,17 +106,18 @@
                     },
                     body: JSON.stringify({ selections, name }),
                 });
-
+        
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-
+        
                 document.getElementById('imageSelection').style.display = 'none';
                 document.getElementById('finishedMessage').style.display = 'block';
             } catch (error) {
                 console.error('Error submitting data:', error);
             }
         }
+
     </script>
 </body>
 </html>
