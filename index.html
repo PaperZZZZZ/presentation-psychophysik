@@ -73,6 +73,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
+        // Initialize Supabase with your URL and anon key
         const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
 
@@ -88,8 +89,12 @@
             const yesButton = document.getElementById('yesButton');
             const noButton = document.getElementById('noButton');
 
+            // Console log for troubleshooting
+            console.log('Page loaded and script initialized');
+
             // Handle name submission
             goButton.addEventListener('click', () => {
+                console.log('Go button clicked');
                 userName = document.getElementById('name').value.trim();
                 if (userName) {
                     document.getElementById('nameInput').classList.add('hidden');
@@ -101,8 +106,14 @@
             });
 
             // Handle image selection
-            yesButton.addEventListener('click', () => handleSelection('yes'));
-            noButton.addEventListener('click', () => handleSelection('no'));
+            yesButton.addEventListener('click', () => {
+                console.log('Yes button clicked');
+                handleSelection('yes');
+            });
+            noButton.addEventListener('click', () => {
+                console.log('No button clicked');
+                handleSelection('no');
+            });
         });
 
         function showImage() {
