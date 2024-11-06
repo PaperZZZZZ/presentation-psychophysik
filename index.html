@@ -9,36 +9,36 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #f9f9f9; /* Light background color */
-            color: #333; /* Dark text color */
+            background-color: #f9f9f9;
+            color: #333;
         }
         .hidden {
             display: none;
         }
         img {
-            width: 300px; /* Set your image size to be larger */
+            width: 300px;
             height: auto;
             margin: 10px;
-            border: 2px solid #ccc; /* Light border around images */
-            border-radius: 8px; /* Rounded corners for images */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .button-container {
-            margin-top: 20px; /* Space above button container */
+            margin-top: 20px;
         }
         button {
-            padding: 15px 30px; /* Increase padding for larger buttons */
-            font-size: 18px; /* Increase font size */
-            margin: 10px; /* Margin between buttons */
-            cursor: pointer; /* Pointer cursor on hover */
-            border: none; /* Remove default border */
-            border-radius: 5px; /* Rounded corners */
-            background-color: #4CAF50; /* Green background color */
-            color: white; /* White text color */
-            transition: background-color 0.3s; /* Smooth transition */
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #45a049; /* Darker green on hover */
+            background-color: #45a049;
         }
         #finishedMessage {
             display: none;
@@ -58,8 +58,11 @@
 
     <div id="imageSelection" class="hidden">
         <h1>Select Images</h1>
-        <div id="imageContainer"></div>
-        <div class="button-container" id="buttonContainer"></div>
+        <img id="currentImage" src="image1.jpg" alt="Image">
+        <div class="button-container">
+            <button id="yesButton">Yes</button>
+            <button id="noButton">No</button>
+        </div>
     </div>
 
     <div id="finishedMessage" class="hidden">
@@ -67,57 +70,62 @@
         <p>Thank you for your selections!</p>
     </div>
 
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
-        const images = ['/path/to/image1.png', '/path/to/image2.png', '/path/to/image3.png'];
-        let currentImageIndex = 0;
-        const selections = [];
+        const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        document.getElementById('name').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                document.getElementById('imageSelection').style.display = 'block';
-                document.getElementById('name').style.display = 'none';
-                loadNextImage();
+        let userName = '';
+        let currentIndex = 0;
+        const images = ['image1.jpg', 'image2.jpg', 'image3.jpg']; // Replace with your images array
+
+        document.getElementById('goButton').addEventListener('click', () => {
+            userName = document.getElementById('name').value.trim();
+            if (userName) {
+                document.getElementById('nameInput').classList.add('hidden');
+                document.getElementById('imageSelection').classList.remove('hidden');
+                showImage();
+            } else {
+                alert("Please enter your name.");
             }
         });
 
-        function loadNextImage() {
-            if (currentImageIndex < images.length) {
-                document.getElementById('image').src = images[currentImageIndex];
+        document.getElementById('yesButton').addEventListener('click', () => handleSelection('yes'));
+        document.getElementById('noButton').addEventListener('click', () => handleSelection('no'));
+
+        function showImage() {
+            if (currentIndex < images.length) {
+                document.getElementById('currentImage').src = images[currentIndex];
             } else {
-                submitSelections();
+                endSelection();
             }
         }
 
-        function submitResponse(selected) {
-            selections.push({ image: images[currentImageIndex], selected });
-            currentImageIndex++;
-            loadNextImage();
+        async function handleSelection(selection) {
+            const imageName = images[currentIndex];
+            await saveSelection(userName, imageName, selection);
+            currentIndex++;
+            showImage();
         }
 
-        async function submitSelections() {
-            const name = document.getElementById('name').value;
-
-            try {
-                const response = await fetch('/api/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ selections, name }),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                document.getElementById('imageSelection').style.display = 'none';
-                document.getElementById('finishedMessage').style.display = 'block';
-            } catch (error) {
-                console.error('Error submitting data:', error);
+        async function saveSelection(name, image, selection) {
+            const { data, error } = await supabase
+                .from('userSelections')
+                .insert([{ name: name, image: image, selection: selection }]);
+            if (error) {
+                console.error('Error saving selection:', error);
+            } else {
+                console.log('Selection saved:', data);
             }
+        }
+
+        function endSelection() {
+            document.getElementById('imageSelection').classList.add('hidden');
+            document.getElementById('finishedMessage').classList.remove('hidden');
         }
     </script>
-
 
 </body>
 </html>
