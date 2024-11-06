@@ -9,42 +9,20 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #f9f9f9;
-            color: #333;
         }
         .hidden {
             display: none;
         }
         img {
-            width: 300px;
+            width: 100px; /* Set your image size */
             height: auto;
             margin: 10px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .button-container {
-            margin-top: 20px;
         }
         button {
-            padding: 15px 30px;
-            font-size: 18px;
-            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #finishedMessage {
-            display: none;
-            font-size: 24px;
-            color: green;
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -58,83 +36,85 @@
 
     <div id="imageSelection" class="hidden">
         <h1>Select Images</h1>
-        <img id="currentImage" src="LightAndSquare0105.png" alt="Image">
-        <div class="button-container">
-            <button id="yesButton">Yes</button>
-            <button id="noButton">No</button>
-        </div>
-    </div>
-
-
-    <div id="finishedMessage" class="hidden">
-        <h1>Finished!</h1>
-        <p>Thank you for your selections!</p>
+        <div id="imageContainer"></div>
+        <button id="submit" class="hidden">Submit</button>
     </div>
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
     <script>
         // Initialize Supabase with your URL and anon key
         const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
-
-
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        const goButton = document.getElementById('goButton');
+        const nameInput = document.getElementById('nameInput');
+        const imageSelection = document.getElementById('imageSelection');
+        const imageContainer = document.getElementById('imageContainer');
+        const submitButton = document.getElementById('submit');
+        
+        const images = [
+            'LightAndSquare0105.png', 
+            'LightAndSquare0109.png',
+            'LightAndSquare0114.png',
+            'LightAndSquare0121.png'
+            // Add more images as needed
+        ];
+
+        let currentImageIndex = 0;
+        const selections = [];
         let userName = '';
-        let currentIndex = 0;
-        const images = ['image1.jpg', 'image2.jpg', 'image3.jpg']; // Replace with your images array
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const goButton = document.getElementById('goButton');
-            const yesButton = document.getElementById('yesButton');
-            const noButton = document.getElementById('noButton');
-
-            // Console log for troubleshooting
-            console.log('Page loaded and script initialized');
-
-            // Handle name submission
-            goButton.addEventListener('click', () => {
-                console.log('Go button clicked');
-                userName = document.getElementById('name').value.trim();
-                if (userName) {
-                    document.getElementById('nameInput').classList.add('hidden');
-                    document.getElementById('imageSelection').classList.remove('hidden');
-                    showImage();
-                } else {
-                    alert("Please enter your name.");
-                }
-            });
-
-            // Handle image selection
-            yesButton.addEventListener('click', () => {
-                console.log('Yes button clicked');
-                handleSelection('yes');
-            });
-            noButton.addEventListener('click', () => {
-                console.log('No button clicked');
-                handleSelection('no');
-            });
+        goButton.addEventListener('click', () => {
+            userName = document.getElementById('name').value.trim();
+            if (userName) {
+                nameInput.classList.add('hidden');
+                imageSelection.classList.remove('hidden');
+                displayImage();
+            } else {
+                alert('Please enter your name.');
+            }
         });
 
-        function showImage() {
-            if (currentIndex < images.length) {
-                document.getElementById('currentImage').src = images[currentIndex];
+        function displayImage() {
+            if (currentImageIndex < images.length) {
+                const img = document.createElement('img');
+                img.src = images[currentImageIndex];
+                img.alt = `Image ${currentImageIndex + 1}`;
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
+                createButtons();
             } else {
-                endSelection();
+                submitButton.classList.remove('hidden');
             }
         }
 
-        async function handleSelection(selection) {
-            const imageName = images[currentIndex];
-            await saveSelection(userName, imageName, selection);
-            currentIndex++;
-            showImage();
+        function createButtons() {
+            const yesButton = document.createElement('button');
+            yesButton.textContent = 'Yes';
+            yesButton.onclick = () => handleSelection(true);
+
+            const noButton = document.createElement('button');
+            noButton.textContent = 'No';
+            noButton.onclick = () => handleSelection(false);
+
+            imageContainer.appendChild(yesButton);
+            imageContainer.appendChild(noButton);
         }
 
+        async function handleSelection(selection) {
+            selections.push({ image: images[currentImageIndex], selected: selection });
+            await saveSelection(userName, images[currentImageIndex], selection); // Save to Supabase
+            currentImageIndex++;
+            displayImage();
+        }
+
+        // Save selection to Supabase
         async function saveSelection(name, image, selection) {
             const { data, error } = await supabase
-                .from('userSelections')
+                .from('userSelections') // Replace with your table name
                 .insert([{ name: name, image: image, selection: selection }]);
             if (error) {
                 console.error('Error saving selection:', error);
@@ -143,10 +123,12 @@
             }
         }
 
-        function endSelection() {
-            document.getElementById('imageSelection').classList.add('hidden');
-            document.getElementById('finishedMessage').classList.remove('hidden');
-        }
+        submitButton.addEventListener('click', () => {
+            // Handle final submission logic
+            console.log('Selections:', selections);
+            alert('Thank you for your selections!');
+            // Optionally, reset the state or redirect
+        });
     </script>
 
 </body>
