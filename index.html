@@ -121,7 +121,7 @@
                     .from('userSelections') // Replace with your table name
                     .insert([{ name: name, image: image, selection: selection }]);
                 if (error) {
-                    console.error('Error saving selection:', error);
+                    console.error('FEHLER BEIM DATENÜBETRAG', error);
                 } else {
                     console.log('Selection saved:', data);
                 }
