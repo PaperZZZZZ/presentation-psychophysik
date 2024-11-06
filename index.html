@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,12 +20,6 @@
             height: auto;
             margin: 10px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -40,108 +36,96 @@
         <button id="submit" class="hidden">Submit</button>
     </div>
 
-    <!-- Supabase CDN -->
+    <!-- Load Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+    <!-- Your custom script -->
     <script>
-        // Ensure the script is loaded before initializing supabase
-        // Ensure the script is loaded before initializing supabase
+        // Wait until the DOM is fully loaded
         window.onload = function () {
-            // Initialize Supabase with your URL and anon key
-            let supabase;
-        
-            initSupabase().then((supa) => {
-                supabase = supa;
-        
-                const goButton = document.getElementById('goButton');
-                const nameInput = document.getElementById('nameInput');
-                const imageSelection = document.getElementById('imageSelection');
-                const imageContainer = document.getElementById('imageContainer');
-                const submitButton = document.getElementById('submit');
-        
-                const images = [
-                    'LightAndSquare0105.png',
-                    'LightAndSquare0109.png',
-                    'LightAndSquare0114.png',
-                    'LightAndSquare0121.png'
-                    // Add more images as needed
-                ];
-        
-                let currentImageIndex = 0;
-                const selections = [];
-                let userName = '';
-        
-                function initSupabase() {
-                    const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
-                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
-                    const supa = supabase.createClient(supabaseUrl, supabaseKey);
-                    return supa;
+            // Initialize Supabase client here
+            const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';    
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
+            
+            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+            const goButton = document.getElementById('goButton');
+            const nameInput = document.getElementById('nameInput');
+            const imageSelection = document.getElementById('imageSelection');
+            const imageContainer = document.getElementById('imageContainer');
+            const submitButton = document.getElementById('submit');
+            
+            const images = [
+                'LightAndSquare0105.png',
+                'LightAndSquare0109.png',
+                'LightAndSquare0114.png',
+                'LightAndSquare0121.png',
+                // Add more images as needed
+            ];
+
+            let currentImageIndex = 0;
+            const selections = [];
+
+            goButton.addEventListener('click', () => {
+                const name = document.getElementById('name').value;
+                if (name) {
+                    nameInput.classList.add('hidden');
+                    imageSelection.classList.remove('hidden');
+                    displayImage();
+                } else {
+                    alert('Please enter your name.');
                 }
-        
-                goButton.addEventListener('click', () => {
-                    userName = document.getElementById('name').value.trim();
-                    if (userName) {
-                        nameInput.classList.add('hidden');
-                        imageSelection.classList.remove('hidden');
-                        displayImage(supabase); // Pass the supabase instance
-                    } else {
-                        alert('Please enter your name.');
-                    }
-                });
-        
-                function displayImage(supabase) {
-                    if (currentImageIndex < images.length) {
-                        const img = document.createElement('img');
-                        img.src = images[currentImageIndex];
-                        img.alt = `Image ${currentImageIndex + 1}`;
-                        imageContainer.innerHTML = '';
-                        imageContainer.appendChild(img);
-                        createButtons(supabase); // Pass the supabase instance
-                    } else {
-                        submitButton.classList.remove('hidden');
-                    }
+            });
+
+            function displayImage() {
+                if (currentImageIndex < images.length) {
+                    const img = document.createElement('img');
+                    img.src = images[currentImageIndex];
+                    img.alt = `Image ${currentImageIndex + 1}`;
+                    imageContainer.innerHTML = '';
+                    imageContainer.appendChild(img);
+                    createButtons();
+                } else {
+                    submitButton.classList.remove('hidden');
                 }
-        
-                function createButtons(supabase) {
-                    const yesButton = document.createElement('button');
-                    yesButton.textContent = 'Yes';
-                    yesButton.onclick = () => handleSelection(true, supabase); // Pass the supabase instance
-        
-                    const noButton = document.createElement('button');
-                    noButton.textContent = 'No';
-                    noButton.onclick = () => handleSelection(false, supabase);
-        
-                    imageContainer.appendChild(yesButton);
-                    imageContainer.appendChild(noButton);
-                }
-        
-                async function handleSelection(selection, supabase) {
-                    selections.push({ image: images[currentImageIndex], selected: selection });
-                    await saveSelection(userName, images[currentImageIndex], selection, supabase); // Pass the supabase instance
-                    currentImageIndex++;
-                    displayImage(supabase);
-                }
-        
-                // Save selection to Supabase
-                async function saveSelection(name, image, selection, supabase) {
+            }
+
+            function createButtons() {
+                const yesButton = document.createElement('button');
+                yesButton.textContent = 'Yes';
+                yesButton.onclick = () => handleSelection(true);
+
+                const noButton = document.createElement('button');
+                noButton.textContent = 'No';
+                noButton.onclick = () => handleSelection(false);
+
+                imageContainer.appendChild(yesButton);
+                imageContainer.appendChild(noButton);
+            }
+
+            function handleSelection(selection) {
+                selections.push({ image: images[currentImageIndex], selected: selection });
+                currentImageIndex++;
+                displayImage();
+            }
+
+            submitButton.addEventListener('click', async () => {
+                const name = document.getElementById('name').value;
+
+                // Save selections to Supabase
+                for (const selection of selections) {
                     const { data, error } = await supabase
-                        .from('userSelections') // Replace with your table name
-                        .insert([{ name: name, image: image, selection: selection }]);
+                        .from('userSelections')
+                        .insert([{ name: name, image: selection.image, selection: selection.selected }]);
+
                     if (error) {
-                        console.error('FEHLER BEIM DATENÜBETRAG', error);
+                        console.error('Error saving selection:', error);
                     } else {
                         console.log('Selection saved:', data);
                     }
                 }
-        
-                submitButton.addEventListener('click', () => {
-                    // Handle final submission logic
-                    console.log('Selections:', selections);
-                    alert('Thank you for your selections!');
-                    // Optionally, reset the state or redirect
-                });
-            }).catch((error) => {
-                console.error(error);
+
+                alert('Thank you for your selections!');
             });
         };
     </script>
