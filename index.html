@@ -113,7 +113,7 @@
                 const img = document.createElement('img');
                 img.src = images[currentImageIndex];
                 img.alt = `Image ${currentImageIndex + 1}`;
-                imageContainer.innerHTML = '';
+                imageContainer.innerHTML = ''; // Clear previous image
                 imageContainer.appendChild(img);
                 createButtons();
             } else {
@@ -156,9 +156,12 @@
                 listItem.textContent = `Image: ${selection.image}, Selected: ${selection.selected ? 'Yes' : 'No'}`;
                 resultsList.appendChild(listItem);
             });
-            results.classList.remove('hidden'); // Show the results section
-        }
 
+            // Show results with a delay to ensure smooth transition
+            setTimeout(() => {
+                results.classList.remove('hidden'); // Show the results section
+            }, 500); // Add a small delay
+        }
     </script>
 
 </body>
