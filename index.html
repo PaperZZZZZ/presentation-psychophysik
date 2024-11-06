@@ -45,18 +45,8 @@
 
     <script>
         // Ensure the script is loaded before initializing supabase
-        // Initialize Supabase with your URL and anon key
-        function initSupabase() {
-            const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-            return supabase;
-        }
-        
-        // Ensure the script is loaded before initializing supabase
         window.onload = function () {
-            // Initialize Supabase
+            // Initialize Supabase with your URL and anon key
             let supabase;
         
             initSupabase().then((supa) => {
@@ -80,12 +70,19 @@
                 const selections = [];
                 let userName = '';
         
+                function initSupabase() {
+                    const supabaseUrl = 'https://jmhkowgvcvxbiyqiedho.supabase.co';
+                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaGtvd2d2Y3Z4Yml5cWllZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4ODQ2MjQsImV4cCI6MjA0NjQ2MDYyNH0.eeqG3WXj9pVeGZy-dmS66mkqjiRINv_fAq0A8_zYHYQ';
+                    const supa = supabase.createClient(supabaseUrl, supabaseKey);
+                    return supa;
+                }
+        
                 goButton.addEventListener('click', () => {
                     userName = document.getElementById('name').value.trim();
                     if (userName) {
                         nameInput.classList.add('hidden');
                         imageSelection.classList.remove('hidden');
-                        displayImage(supabase);
+                        displayImage(supabase); // Pass the supabase instance
                     } else {
                         alert('Please enter your name.');
                     }
@@ -98,13 +95,13 @@
                         img.alt = `Image ${currentImageIndex + 1}`;
                         imageContainer.innerHTML = '';
                         imageContainer.appendChild(img);
-                        createButtons();
+                        createButtons(supabase); // Pass the supabase instance
                     } else {
                         submitButton.classList.remove('hidden');
                     }
                 }
         
-                function createButtons() {
+                function createButtons(supabase) {
                     const yesButton = document.createElement('button');
                     yesButton.textContent = 'Yes';
                     yesButton.onclick = () => handleSelection(true, supabase); // Pass the supabase instance
