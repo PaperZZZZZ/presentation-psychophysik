@@ -68,56 +68,76 @@
     </div>
 
     <script>
-        const images = ['image1.png', 'image2.png', 'image3.png'];
-        let currentImageIndex = 0;
-        const selections = [];
-
-        // Start showing images after name is entered
-        document.getElementById('name').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                document.getElementById('imageSelection').style.display = 'block';
-                document.getElementById('name').style.display = 'none';
-                loadNextImage();
+        const goButton = document.getElementById('goButton');
+        const nameInput = document.getElementById('name');
+        const imageContainer = document.getElementById('imageContainer');
+        const buttonContainer = document.getElementById('buttonContainer');
+        const finishedMessage = document.getElementById('finishedMessage');
+        const imageSelection = document.getElementById('imageSelection');
+        let selections = {
+            name: '',
+            images: []
+        };
+    
+        // Example images to display
+        const images = ["image1.jpg", "image2.jpg", "image3.jpg"];
+        
+        // Initialize images in container
+        function initImages() {
+            images.forEach((imgSrc, index) => {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.dataset.index = index;
+                img.addEventListener('click', () => selectImage(index));
+                imageContainer.appendChild(img);
+            });
+        }
+    
+        function selectImage(index) {
+            if (!selections.images.includes(index)) {
+                selections.images.push(index);
+            }
+            // Update UI to indicate selection (optional)
+        }
+    
+        goButton.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (name) {
+                selections.name = name;
+                document.getElementById('nameInput').classList.add('hidden');
+                imageSelection.classList.remove('hidden');
+                initImages();
             }
         });
-
-        function loadNextImage() {
-            if (currentImageIndex < images.length) {
-                document.getElementById('image').src = images[currentImageIndex];
-            } else {
-                submitSelections(); // automatically submit after the last image
-            }
+    
+        // To send the data to your server
+        function sendData() {
+            fetch('https://your-server-url.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selections)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data successfully sent:', data);
+                imageSelection.classList.add('hidden');
+                finishedMessage.classList.remove('hidden');
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         }
-
-        function submitResponse(selected) {
-            selections.push({ image: images[currentImageIndex], selected });
-            currentImageIndex++;
-            loadNextImage();
-        }
-
-        async function submitSelections() {
-            const name = document.getElementById('name').value;
-        
-            try {
-                const response = await fetch('/api/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ selections, name }),
-                });
-        
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-        
-                document.getElementById('imageSelection').style.display = 'none';
-                document.getElementById('finishedMessage').style.display = 'block';
-            } catch (error) {
-                console.error('Error submitting data:', error);
-            }
-        }
-
+    
+        // When user finishes, send data
+        const finishButton = document.createElement('button');
+        finishButton.textContent = 'Finish';
+        finishButton.addEventListener('click', sendData);
+        buttonContainer.appendChild(finishButton);
     </script>
+
+
+
 </body>
 </html>
